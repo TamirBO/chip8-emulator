@@ -22,7 +22,11 @@ pub const CPU_TICK: u128 = 1_000_000_000 / INSTRUCTIONS_PER_SECOND;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() == 2 {
+    if args.len() != 2
+    {
+        println!("Usage: {} <rom-file>", args[0]);
+        return;
+    }
     let mut rom_file = fs::read(&args[1]).unwrap();
     let mut c8 = Chip8::new(&mut rom_file);
     
@@ -32,18 +36,12 @@ fn main() {
     let sdl_context = sdl2::init().unwrap();
     let mut display = display::SdlScreen::new(&sdl_context);
     let mut event_pump = sdl_context.event_pump().unwrap();
-    /*for i in 0..24{
-        cpu::step(&mut c8);
-        println!("{:x}", c8.cpu.registers[0]);
-    }*/
+
     'running: loop {
 
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => break 'running,
-                //Event::KeyDown {keycode: Some(keycode), ..} => c8.keyboard.handle_input(keycode, true),
-                //Event::KeyUp {keycode: Some(keycode), ..} => c8.keyboard.handle_input(keycode, false),
-                //Event::KeyDown{keycode: Some(Keycode::Period), ..} => cpu::step(&mut c8),
                 _ => {}
             }
         }
@@ -52,18 +50,16 @@ fn main() {
         let keyboard_state = event_pump.keyboard_state();
         input::handle_input(&mut c8.keys, keyboard_state);
         display.render(&c8.screen);
-        //display.canvas.present();
+
         if timer >= TIMERS_TICK{
             c8.cpu.handle_timers();
             now = Instant::now();        
 
         }
-        //if timer.elapsed().as_nanos() % CPU_TICK == 0{
             if timer >= CPU_TICK{
             cpu::step(&mut c8);
             }
-        //}
-        // The rest of the game loop goes here...
+
     }
 }
-}
+

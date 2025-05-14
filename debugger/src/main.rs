@@ -21,7 +21,6 @@ fn main() {
         "Chip8 Debugger",           // window title
         native_options,
         Box::new(move |cc: &CreationContext<'_>| {
-            // Now you can call your two-arg constructor
             Ok(Box::new(Debugger::new(cc, &mut rom_file)))
         }),
     );
